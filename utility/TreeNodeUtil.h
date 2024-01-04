@@ -2,6 +2,7 @@
 #include <vector>
 #include <optional>
 #include <utility>
+#include <iostream>
 
 struct TreeNode {
     int val;
@@ -54,4 +55,32 @@ TreeNode* create_treenode(const std::vector<std::optional<int>>& values) {
     return root;
 }
 
+
+void output_treenode(const TreeNode* root) {
+    std::cout << "output treenode begin" << std::endl;
+    std::vector<const TreeNode*> current{ root };
+    std::vector<const TreeNode*> next;
+    bool exist = true;
+    while (exist) {
+        exist = false;
+        for (auto&& node : current) {
+            if (node != nullptr) {
+                std::cout << node->val << ",";
+                next.emplace_back(node->left);
+                next.emplace_back(node->right);
+                exist |= node->left != nullptr;
+                exist |= node->right != nullptr;
+            }
+            else {
+                std::cout << "null,";
+                next.emplace_back(nullptr);
+                next.emplace_back(nullptr);
+            }
+        }
+        std::cout << std::endl;
+        current.clear();
+        std::swap(current, next);
+    }
+    std::cout << "output treenode end" << std::endl;
+}
 
