@@ -100,9 +100,24 @@ public:
     static const int64_t MODULO = 1000000000 + 7;
 
     int kInversePairs(int n, int k) {
-        vector<vector<int>> memo(n + 1, vector<int>(k + 1, 0));
+        vector<vector<int>> dp(n + 1, vector<int>(k + 1, 0));
+        dp[0][0] = 0;
 
-        return rec3(n, k, memo);
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0; j <= k; j++) {
+                if (j == 0) {
+                    dp[i][j] = 1;
+                }
+                else {
+                    int c = 0;
+                    for (int p = 0; p <= min(j, i - 1); p++) {
+                        c = (c + dp[i - 1][j - p]) % MODULO;
+                    }
+                    dp[i][j] = c;
+                }
+            }
+        }
+        return dp[n][k];
     }
 };
 
@@ -112,6 +127,7 @@ void test(int n, int k) {
 
 int main()
 {
+    test(1000, 1000);
     test(10, 11);
 
     test(3, 0);
