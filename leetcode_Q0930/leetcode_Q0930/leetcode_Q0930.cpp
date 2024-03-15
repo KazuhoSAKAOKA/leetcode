@@ -9,6 +9,14 @@ using namespace std;
 class Solution {
 public:
     int numSubarraysWithSum(vector<int>& nums, int goal) {
+
+        vector<int> sums(nums.size() + 1, 0);
+        for (int i = 0; i <= nums.size(); i++) {
+            sums[i + 1] = sums[i] + nums[i];
+        }
+
+
+
         int total = 0;
         for (auto i = 0; i < nums.size(); i++) {
             int sum = 0;
