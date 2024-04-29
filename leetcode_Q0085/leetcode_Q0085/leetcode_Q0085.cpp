@@ -4,104 +4,59 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
-
+#include <stack>
 using namespace std;
 
 class Solution {
 public:
     
+    static int get_max_area(const vector<vector<int>>& hist, int start_y, int x) {
+        int max_area = 0;
+        stack<int> st;
+        const int base = start_y - 1;
+        st.push(base);
+        int current_y = start_y;
+
+        while(current_y < hist.size() && hist[current_y][x] != 0) {
+            while (st.top() != base && hist[st.top()][x] >= hist[current_y][x]) {
+                const auto width = hist[st.top()][x];
+                st.pop();
+                const auto pos = st.top();
+                const auto height = current_y - pos - 1;
+                max_area = max(max_area, width * height);
+            }
+            st.push(current_y);
+            current_y++;
+        }
+        while (st.top() != base) {
+            const auto width = hist[st.top()][x];
+            st.pop();
+            const auto pos = st.top();
+            const auto height = current_y - pos - 1;
+            max_area = max(max_area, width * height);
+        }
+        return max_area;
+    }
+
     int maximalRectangle(vector<vector<char>>& matrix) {
-        using P = pair<int, int>;
-        vector<vector<P>> dp(matrix.size(), vector<P>(matrix.front().size(), P(-1, -1)));
-
-        auto calc = [](const P& ps, int i, int j){
-                return (i - ps.first + 1) * (j - ps.second + 1);
-            };
-        auto valid = [](const P& p){
-                return p.first >= 0 && p.second >= 0;
-            };
-
-        auto get_col_continue = [&](int y, int start_point, int end_point_include) {
-                int index = end_point_include - 1;
-                for (; index >= start_point; index--) {
-                    if (matrix[y][index] == '0') {
-                        return index + 1;
-                    }
-                }
-                return start_point;
-            };
-
-        auto get_row_continue = [&](int x, int start_point, int end_point_include) {
-                int index = end_point_include - 1;
-                for (; index >= start_point; index--) {
-                if (matrix[index][x] == '0') {
-                        return index + 1;
-                    }
-                }
-                return start_point;
-            };
-
+        const auto h = matrix.size();
+        const auto w = matrix.front().size();
+        vector<vector<int>> hist(h, vector<int>(w, 0));
+        for(int i = 0; i< h; i++){
+            hist[i][w - 1] = matrix[i][w - 1] == '1' ? 1 : 0;
+            for (int j = static_cast<int>(w - 2); j >= 0; j--) {
+                hist[i][j] = matrix[i][j] == '1' ? (1 + hist[i][j + 1]) : 0;
+            }
+        }
 
         int max_size = 0;
 
-        if (matrix[0][0] == '1') {
-            max_size = 1;
-            dp[0][0] = P(0, 0);
-        }
-
-        for (int j = 1; j < matrix.front().size(); j++) {
-            if (matrix[0][j] == '1') {
-                dp[0][j] = valid(dp[0][j - 1]) ? dp[0][j - 1] : P(0, j);
-                max_size = max(max_size, calc(dp[0][j], 0, j));
+        for (int i = 0; i < matrix.size(); i++) {
+            for (int j = 0; j < matrix.front().size(); j++) {
+                max_size = max(max_size, get_max_area(hist, i, j));
             }
         }
-        for (int i = 1; i < matrix.size(); i++) {
-            if (matrix[i][0] == '1') {
-                dp[i][0] = valid(dp[i - 1][0]) ? dp[i - 1][0] : P(i, 0);
-                max_size = max(max_size, calc(dp[i][0], i, 0));
-            }
-        }
-
-        for (int i = 1; i < matrix.size(); i++) {
-            for (int j = 1; j < matrix.front().size(); j++) {
-                if (matrix[i][j] == '1') {
-                    if (valid(dp[i][j - 1]) && valid(dp[i - 1][j])) {
-                        if (dp[i][j - 1] == dp[i - 1][j]) {
-                            dp[i][j] = dp[i - 1][j];
-                        }
-                        else {
-                            const auto colindex = get_col_continue(i, dp[i][j - 1].second, j);
-                            const auto box_1 = P(dp[i][j - 1].first, colindex);
-
-                            const auto rowindex = get_row_continue(j, dp[i - 1][j].first, i);
-                            const auto box_2 = P(rowindex, dp[i - 1][j].second);
-
-                            if (calc(box_1, i, j) < calc(box_2, i, j)) {
-                                dp[i][j] = box_2;
-                            }
-                            else {
-                                dp[i][j] = box_1;
-                            }
-                        }
-                    }
-                    else {
-                        if (valid(dp[i][j - 1])) {
-                            dp[i][j] = P(i, dp[i][j - 1].second);
-                        }
-                        else if (valid(dp[i - 1][j])) {
-                            dp[i][j] = P(dp[i - 1][j].first, j);
-                        }
-                        else {
-                            dp[i][j] = P(i, j);
-                        }
-                    }
-                    max_size = max(max_size, calc(dp[i][j], i, j));
-                }
-            }
-        }
-
         return max_size;
-       
     }
     /*
     using rectangle = pair<int, int>;
