@@ -12,21 +12,24 @@ using namespace std;
 class Solution {
 public:
 
-    int BruteForce(const vector<int>& height) {
-        size_t max_amount = 0;
 
-        for (size_t left = 0; left < height.size(); left++) {
-            for (size_t right = left + 1; right < height.size(); right++) {
-                const auto amount = (right - left) * min(height[left], height[right]);
-                max_amount = max(max_amount, amount);
+    int maxArea(vector<int>& height) {
+        int max_amount = 0;
+
+        int left = 0;
+        int right = height.size() - 1;
+
+        while(left < right) {
+            const int current_amount = min(height[left], height[right]) * (right - left);
+            max_amount = max(max_amount, current_amount);
+            if (height[left] < height[right]) {
+                left++;
+            }
+            else {
+                right--;
             }
         }
         return max_amount;
-    }
-
-
-    int maxArea(vector<int>& height) {
-
     }
 };
 
