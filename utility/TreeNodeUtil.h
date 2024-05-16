@@ -55,6 +55,42 @@ TreeNode* create_treenode(const std::vector<std::optional<int>>& values) {
     return root;
 }
 
+/// <summary>
+/// TreeNode構築
+/// </summary>
+/// <param name="values">nulloptの子ノードは無視する</param>
+/// <returns></returns>
+TreeNode* create_treenode2(const std::vector<std::optional<int>>& values) {
+    TreeNode* root = nullptr;
+
+    if (!values.empty() && values[0].has_value()) {
+        root = new TreeNode(values[0].value());
+        int index = 1;
+        std::vector<TreeNode*> before{ root, };
+        std::vector<TreeNode*> current;
+        while (index < values.size()) {
+            for (int i = 0; i < before.size(); i++) {
+                if (values.size() <= index) { break; }
+                if (values[index].has_value()) {
+                    current.emplace_back(new TreeNode(values[index].value()));
+                    before[i]->left = current.back();
+                }
+                index++;
+                if (values.size() <= index) { break; }
+                if (values[index].has_value()) {
+                    current.emplace_back(new TreeNode(values[index].value()));
+                    before[i]->right = current.back();
+                }
+                index++;
+            }
+            std::swap(current, before);
+            current.clear();
+        }
+    }
+
+    return root;
+}
+
 
 void output_treenode(const TreeNode* root) {
     std::cout << "output treenode begin" << std::endl;

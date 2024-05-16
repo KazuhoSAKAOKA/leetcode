@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <optional>
 
 template <typename T, typename F> 
 std::vector<T> get_list(const std::string& data, F convert) {
@@ -90,4 +91,12 @@ std::vector<std::string> get_list_str(const std::string& data) {
 }
 std::vector<std::vector<std::string>> get_matrix_str(const std::string& data) {
     return get_matrix<std::string>(data, remove_double_quotes);
+}
+
+
+std::vector<std::optional<int>> get_list_optional_int(const std::string& data) {
+    return get_list<std::optional<int>>(data, [](const std::string& value) { 
+        if (value == "null") { return static_cast<std::optional<int>>(std::nullopt); }
+        return static_cast<std::optional<int>>(std::stoi(value));
+        });
 }
