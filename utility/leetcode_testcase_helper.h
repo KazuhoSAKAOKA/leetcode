@@ -94,6 +94,18 @@ std::vector<std::vector<std::string>> get_matrix_str(const std::string& data) {
 }
 
 
+inline char remove_double_quotes_and_to_char(const std::string& value) {
+    const auto s = value.find_first_of('"');
+    if (s == std::string::npos) { return 0; }
+    const auto e = value.find_first_of('"', s + 1);
+    if (e == std::string::npos) { throw std::exception(); }
+    return value[s + 1];
+}
+std::vector<char> get_list_char(const std::string& data) {
+    return get_list<char>(data, remove_double_quotes_and_to_char);
+}
+
+
 std::vector<std::optional<int>> get_list_optional_int(const std::string& data) {
     return get_list<std::optional<int>>(data, [](const std::string& value) { 
         if (value == "null") { return static_cast<std::optional<int>>(std::nullopt); }
