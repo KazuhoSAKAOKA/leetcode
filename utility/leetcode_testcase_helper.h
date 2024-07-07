@@ -93,7 +93,6 @@ std::vector<std::vector<std::string>> get_matrix_str(const std::string& data) {
     return get_matrix<std::string>(data, remove_double_quotes);
 }
 
-
 inline char remove_double_quotes_and_to_char(const std::string& value) {
     const auto s = value.find_first_of('"');
     if (s == std::string::npos) { return 0; }
@@ -103,6 +102,9 @@ inline char remove_double_quotes_and_to_char(const std::string& value) {
 }
 std::vector<char> get_list_char(const std::string& data) {
     return get_list<char>(data, remove_double_quotes_and_to_char);
+}
+std::vector<std::vector<char>> get_matrix_char(const std::string& data) {
+    return get_matrix<char>(data, remove_double_quotes_and_to_char);
 }
 
 
