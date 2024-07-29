@@ -114,3 +114,7 @@ std::vector<std::optional<int>> get_list_optional_int(const std::string& data) {
         return static_cast<std::optional<int>>(std::stoi(value));
         });
 }
+
+std::vector<double> get_list_double(const std::string& data) {
+    return get_list<double>(data, [](const std::string& value) { return std::stod(value); });
+}
