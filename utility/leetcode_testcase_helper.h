@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include <optional>
+#include <iostream>
 
 template <typename T, typename F> 
 std::vector<T> get_list(const std::string& data, F convert) {
@@ -117,4 +118,16 @@ std::vector<std::optional<int>> get_list_optional_int(const std::string& data) {
 
 std::vector<double> get_list_double(const std::string& data) {
     return get_list<double>(data, [](const std::string& value) { return std::stod(value); });
+}
+
+template <typename T>
+void output(const std::vector<T>& values) {
+    std::cout << "[";
+    if (!values.empty()) {
+        for (int i = 0; i < size(values) - 1; i++) {
+            std::cout << values[i] << ",";
+        }
+        std::cout << values.back();
+    }
+    std::cout << "]" << endl;
 }
