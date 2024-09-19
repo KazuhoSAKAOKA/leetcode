@@ -129,5 +129,5 @@ void output(const std::vector<T>& values) {
         }
         std::cout << values.back();
     }
-    std::cout << "]" << endl;
+    std::cout << "]" << std::endl;
 }
