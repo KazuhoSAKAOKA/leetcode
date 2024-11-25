@@ -131,3 +131,14 @@ void output(const std::vector<T>& values) {
     }
     std::cout << "]" << std::endl;
 }
+
+template <typename T>
+void output_matrix(const std::vector<std::vector<T>>& matrix) {
+    for (auto&& list : matrix) {
+        for (int i = 0; i < size(list) - 1; i++) {
+            std::cout << list[i] << ",";
+        }
+        std::cout << list.back() << std::endl;
+    }
+    std::cout << std::endl;
+}
