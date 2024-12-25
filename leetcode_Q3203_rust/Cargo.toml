@@ -1,0 +1,6 @@
+[package]
+name = "leetcode_Q3203_rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
