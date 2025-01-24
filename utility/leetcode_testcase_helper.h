@@ -54,8 +54,13 @@ std::vector<std::vector<T>> get_matrix(const std::string& data, F convert) {
             }
             is_end = data[value_end] == ']';
             const auto value_str = data.substr(index, value_end - index);
-            cols.emplace_back(convert(value_str));
-            index = value_end + 1;
+            if (value_str.empty()) {
+
+            }
+            else {
+                cols.emplace_back(convert(value_str));
+                index = value_end + 1;
+            }
         }
         matrix.emplace_back(cols);
     }
