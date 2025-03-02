@@ -172,16 +172,15 @@ public:
         return max_len;
     }
 
-    static int rec(const string& s, int left, int right, int k, vector<vector<map<int,int>>>& memo) {
+    static int rec(const string& s, int left, int right, int k, vector<vector<vector<int>>>& memo) {
         if (left > right) {
             return 0;
         }
         if (left == right) {
             return 1;
         }
-        auto it = memo[left][right].find(k);
-        if (it != cend(memo[left][right])) {
-            return it->second;
+        if (memo[left][right][k] >= 0) {
+            return memo[left][right][k];
         }
 
         int max_length = rec(s, left + 1, right, k, memo);
@@ -190,12 +189,12 @@ public:
         if (dist <= k) {
             max_length = max(max_length, rec(s, left + 1, right - 1, k - dist, memo) + 2);
         }
-        memo[left][right].insert({ k, max_length });
+        memo[left][right][k] = max_length;
         return max_length;
     }
     int longestPalindromicSubsequence(string s, int k) {
         const int N = size(s);
-        vector<vector<map<int, int>>> dp(N, vector<map<int, int>>(N, map<int, int>()));
+        vector<vector<vector<int>>> dp(N, vector<vector<int>>(N, vector<int>(k + 1, -1)));
         return rec(s, 0, N - 1, k, dp);
     }
 };
