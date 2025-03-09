@@ -211,7 +211,68 @@ static void run() {
 }
 }
 namespace problem3 {
+
+class Solution {
+public:
+
+    int maxSum(vector<int>& nums, int k, int m) {
+        const int n = size(nums);
+        vector<int> prefix_sums(n + 1);
+        for (int i = 0; i < n; i++) {
+            prefix_sums[i + 1] = prefix_sums[i] + nums[i];
+        }
+
+        vector<vector<int>> dp(k, vector<int>(n, -1));
+        dp[0][0] = 0;
+        for (int j = 1; j < n; j++) {
+            dp[0][j] = max(dp[0][j - 1], prefix_sums[j] - prefix_sums[j - 1]);
+        }
+
+        for (int i = 0; i < k; i++) {
+            dp[i][0] = 0;
+            for (int j = 1; j < n; j++) {
+                dp[i][j] = max(dp[i][j - 1], prefix_sums[i + j] - prefix_sums[i]);
+            }
+        }
+        /*
+        int n = nums.size();
+        vector<int> prefix(n + 1, 0);
+
+        partial_sum(nums.begin(), nums.end(), prefix.begin() + 1);
+
+        vector<vector<int>> dp(k + 1, vector<int>(n + 1, -1e9));
+
+        for (int j = 0; j <= n; j++) {
+            dp[0][j] = 0;
+        }
+
+        for (int i = 0; i < k; i++) {
+            int best = -1e9;
+            for (int j = 0; j <= n; j++) {
+                if (j > 0)
+                    dp[i + 1][j] = max(dp[i + 1][j], dp[i + 1][j - 1]);
+
+                if (j - m >= 0)
+                    best = max(best, dp[i][j - m] - prefix[j - m]);
+
+                if (best != -1e9)
+                    dp[i + 1][j] = max(dp[i + 1][j], prefix[j] + best);
+            }
+        }
+
+        return dp[k][n];
+        */
+    }
+};
+
+void test(vector<int>&& nums, int k, int m) {
+    cout << Solution().maxSum(nums, k, m) << endl;
+}
+
 static void run() {
+    test(get_list_int("[-2,-10,15,12,8,11,5]"), 3, 2);
+    test(get_list_int("[1,2,-1,3,3,4]"), 2, 2);
+    test(get_list_int("[-10,3,-1,-2]"), 4, 1);
 }
 }
 namespace problem4 {
@@ -222,7 +283,7 @@ static void run() {
 int main()
 {
     //problem1::run();
-    problem2::run();
+    //problem2::run();
     problem3::run();
     problem4::run();
     return 0;
