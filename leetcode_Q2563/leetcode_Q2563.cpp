@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include "./../utility/leetcode_testcase_helper.h"
 
@@ -46,7 +47,8 @@ struct segment_tree {
 
 class Solution {
 public:
-    long long countFairPairs(vector<int>& nums, int lower, int upper) {
+
+    static long long prev(const vector<int>& nums, int lower, int upper) {
         map<int, int> index_map;
         for (int i = 0; i < size(nums); i++) {
             index_map[nums[i]]++;
@@ -73,6 +75,24 @@ public:
         }
 
         return count;
+    }
+
+    long long countFairPairs(vector<int>& nums, int lower, int upper) {
+        size_t count = 0;
+
+        sort(begin(nums), end(nums));
+
+        for (auto it = cbegin(nums); it != cend(nums); ++it) {
+            const auto cur_value = *it;
+            const auto cur_lower = lower - cur_value;
+            const auto cur_upper = upper - cur_value;
+
+            const auto lower_it = lower_bound(next(it), cend(nums), cur_lower);
+            const auto upper_it = upper_bound(next(it), cend(nums), cur_upper);
+            count += distance(lower_it, upper_it);
+        }
+
+        return static_cast<long long>(count);
     }
 };
 

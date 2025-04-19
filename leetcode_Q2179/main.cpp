@@ -48,7 +48,6 @@ public:
     }
 
 
-    template<typename T>
     struct binary_indexed_tree {
 
         inline static size_t lsb(size_t i) {
@@ -105,7 +104,7 @@ public:
         }
     };
 
-    using fenwick_tree = binary_indexed_tree<long long>;
+    using fenwick_tree = binary_indexed_tree;
 
 
     long long goodTriplets(vector<int>& nums1, vector<int>& nums2) {
