@@ -26,7 +26,7 @@ public:
         throw exception();
     }
 
-    long long countSubarrays(vector<int>& nums, int k) {
+    static long long past(vector<int>& nums, int k) {
         unordered_map<int, int> count_map;
         long long condition_min = 0;
         vector<long long> dp(nums.size() + 1, 0);
@@ -42,6 +42,33 @@ public:
         }
 
         return dp[nums.size()];
+    }
+
+
+    long long countSubarrays(vector<int>& nums, int k) {
+        const auto max_num = *max_element(cbegin(nums), cend(nums));
+        long long count_sub_arr = 0;
+        int cur_count = 0;
+
+        long long l = 0;
+        for (long long r = 0; r < size(nums); r++) {
+            if (nums[r] == max_num) {
+                cur_count++;
+            }
+            while (l < r && cur_count >= k) {
+                if (nums[l] == max_num) {
+                    if (cur_count == k) {
+                        break;
+                    }
+                    cur_count--;
+                }
+                l++;
+            }
+            if (cur_count >= k) {
+                count_sub_arr += l + 1;
+            }
+        }
+        return count_sub_arr;
     }
 };
 
