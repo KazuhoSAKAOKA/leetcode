@@ -133,7 +133,7 @@ public:
         }
     }
 
-    int lengthAfterTransformations(string s, int t) {
+    static int invalid(string s, int t) {
         vector<long long> counts(26, 1);
         map<int, long long> memo;
         auto v = rec_calc(t, 'z', memo);
@@ -149,16 +149,42 @@ public:
         naived0(s, t);
         return ans;
     }
+
+
+
+    int lengthAfterTransformations(string s, int t) {
+        vector<long long> counts(26, 0);
+        for (auto&& c : s) {
+            counts[c - 'a']++;
+        }
+
+        for (int i = 0; i < t; i++) {
+            long long nexta = counts[25];
+            long long nextb = counts[25];
+            for (int j = 24; j >= 0; j--) {
+                counts[j + 1] = counts[j];
+            }
+            counts[0] = nexta;
+            counts[1] += nextb;
+            counts[1] %= MODULO;
+        }
+        long long ans = 0;
+        for (auto&& count : counts) {
+            ans += count;
+            ans %= MODULO;
+        }
+        return ans;
+    }
 };
 void test(string&& s, int t) {
     cout << Solution().lengthAfterTransformations(s, t) << endl;
 }
 void run() {
-    test("z", 26 + 1);
+    //test("z", 26 + 1);
 
-    //test("jqktcurgdvlibczdsvnsg", 7517);
-    //test("abcyy", 2);
-    //test("azbk", 2);
+    test("abcyy", 2);
+    test("azbk", 2);
+    test("jqktcurgdvlibczdsvnsg", 7517);
 }
 }
 namespace problem3 {
