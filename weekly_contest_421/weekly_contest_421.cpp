@@ -194,15 +194,97 @@ void run() {
 }
 }
 namespace problem4 {
+constexpr long long MODULO = 1e9 + 7;
 
+using MATRIX = vector<vector<long long>>;
+
+MATRIX operator * (const MATRIX& a, const MATRIX& b) {
+    const auto n1 = size(a);
+    const auto m1 = size(a.front());
+    const auto n2 = size(b);
+    const auto m2 = size(b.front());
+    if (m1 != n2) { throw exception(); }
+    MATRIX res(n1, vector<long long>(m2));
+    for (int i = 0; i < n1; i++) {
+        for (int j = 0; j < m2; j++) {
+            long long v = 0;
+            for (int k = 0; k < m1; k++) {
+                v += a[i][k] * b[k][j];
+                v %= MODULO;
+            }
+            res[i][j] = v;
+        }
+    }
+    return res;
+}
+
+MATRIX mat_pow(const MATRIX& a, int exp) {
+    if (exp == 0) {
+        MATRIX unit(size(a), vector<long long>(size(a.front())));
+        for (int i = 0; i < size(a); i++) {
+            unit[i][i] = 1;
+        }
+        return unit;
+    }
+    if (exp % 2 == 1) {
+        return mat_pow(a * a, exp / 2) * a;
+    }
+    return mat_pow(a * a, exp / 2);
+}
+
+
+class Solution {
+public:
+    int lengthAfterTransformations(string s, int t, vector<int>& nums) {
+        MATRIX freqs(26, vector<long long>(1));
+        for (auto&& c : s) {
+            freqs[c - 'a'][0]++;
+        }
+        MATRIX m(26, vector<long long>(26));
+        for (int i = 0; i < 26; i++) {
+            for (int j = 1; j <= nums[i]; j++) {
+                m[(i + j) % 26][i] += 1;
+            }
+        }
+
+        const auto mr = mat_pow(m, t);
+        const auto mat_res = mr * freqs;
+
+
+        long long ans = 0;
+        for (int i = 0; i < 26; i++) {
+            ans += mat_res[i][0];
+            ans %= MODULO;
+        }
+        return ans;
+    }
+};
+static void test(string s, int t, vector<int>&& nums) {
+    cout << Solution().lengthAfterTransformations(s, t, nums) << endl;
+}
 void run() {
+    //problem4::MATRIX m1{ {1,2,3},{4,5,6},{7,8,9} };
+    //problem4::MATRIX m2{ {1,4},{2,5},{3,6} };
+    MATRIX m1{ {0,1,0},{0,0,1},{1,0,0} };
+
+    const auto r = m1 * m1;
+    output_matrix<long long>(r);
+    const auto r2 = mat_pow(m1, 2);
+    output_matrix<long long>(r2);
+
+
+    test("azbk", 1, get_list_int("[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]"));
+    test("abcyy", 2, get_list_int("[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2]"));
 }
 }
 
 int main()
 {
+
+
+
     //problem1::run();
-    problem2::run();
+    //problem2::run();
     problem3::run();
     problem4::run();
     return 0;
