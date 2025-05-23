@@ -67,13 +67,13 @@ public:
         return ans;
     }
 
-    static void rec(const vector<int>& nums, int k, const unordered_map<int, vector<int>>& graph, int node, int parent, vector<vector<long long>>& dp) {
+    static pair<long long, long long> rec1(const vector<int>& next_nodes, int index, int cur_count, long long cur_sum) {
+        //if()
+    }
 
-        const auto it = graph.find(node);
-        if (it == cend(graph)) {
-            throw std::exception();
-        }
-        const auto& nodes1 = it->second;
+    static void rec(const vector<int>& nums, int k, const vector<vector<int>>& graph, int node, int parent, vector<vector<long long>>& dp) {
+
+        const auto& nodes1 = graph[node];
 
         vector<int> nodes;
         for (int i = 0; i < nodes1.size(); i++) {
@@ -91,61 +91,80 @@ public:
         for (auto&& child_node : nodes) {
             rec(nums, k, graph, child_node, node, dp);
         }
-
-        vector<bool> sw(nodes.size(), false);
-        auto get_next = [](vector<bool>& sw)->bool {
-            int index = 0;
-            while (index < sw.size() && sw[index]) {
-                sw[index] = false;
-                index++;
-            }
-            if (index == sw.size()) {
-                return false;
-            }
-            sw[index] = true;
-            return true;
-            };
-        bool first = true;
-        int child_val_even = 0;
-        int child_val_odd = 0;
-        while (first || get_next(sw)) {
-            first = false;
-            int current = 0;
-            int current_count = 0;
-            for (int i = 0; i < nodes.size(); i++) {
-                if (sw[i]) {
-                    current += dp[nodes[i]][1];
-                    current_count++;
-                }
-                else {
-                    current += dp[nodes[i]][0];
-                }
-            }
-            if (current_count % 2 == 1) {
-                child_val_odd = max(child_val_odd, current);
-            }
-            else {
-                child_val_even = max(child_val_even, current);
-            }
-        }
+        const auto [even_value, odd_value] = rec1(nodes, 0, 0, 0);
+        //vector<bool> sw(nodes.size(), false);
+        //auto get_next = [](vector<bool>& sw)->bool {
+        //    int index = 0;
+        //    while (index < sw.size() && sw[index]) {
+        //        sw[index] = false;
+        //        index++;
+        //    }
+        //    if (index == sw.size()) {
+        //        return false;
+        //    }
+        //    sw[index] = true;
+        //    return true;
+        //    };
+        //bool first = true;
+        //int child_val_even = 0;
+        //int child_val_odd = 0;
+        //while (first || get_next(sw)) {
+        //    first = false;
+        //    int current = 0;
+        //    int current_count = 0;
+        //    for (int i = 0; i < nodes.size(); i++) {
+        //        if (sw[i]) {
+        //            current += dp[nodes[i]][1];
+        //            current_count++;
+        //        }
+        //        else {
+        //            current += dp[nodes[i]][0];
+        //        }
+        //    }
+        //    if (current_count % 2 == 1) {
+        //        child_val_odd = max(child_val_odd, current);
+        //    }
+        //    else {
+        //        child_val_even = max(child_val_even, current);
+        //    }
+        //}
         const auto self_val_even = static_cast<long long>(nums[node]);
         const auto self_val_odd = static_cast<long long>(nums[node] ^ k);
 
-        dp[node][0] = max(child_val_even + self_val_even, child_val_odd + self_val_odd);
-        dp[node][1] = max(child_val_even + self_val_odd, child_val_odd + self_val_even);
+        //dp[node][0] = max(child_val_even + self_val_even, child_val_odd + self_val_odd);
+        //dp[node][1] = max(child_val_even + self_val_odd, child_val_odd + self_val_even);
     }
 
-
-    long long maximumValueSum(vector<int>& nums, int k, vector<vector<int>>& edges) {
-        unordered_map<int, vector<int>> graph;
+    static long long tle(vector<int>& nums, int k, vector<vector<int>>& edges) {
+        const auto n = size(nums) + 1;
+        vector<vector<int>> graph(n);
         for (auto&& edge : edges) {
             graph[edge.front()].emplace_back(edge.back());
             graph[edge.back()].emplace_back(edge.front());
         }
         vector<vector<long long>> dp(nums.size(), vector<long long>(2, 0LL));
         rec(nums, k, graph, 0, -1, dp);
-        
+
         return dp[0][0];
+    }
+    long long maximumValueSum(vector<int>& nums, int k, vector<vector<int>>& edges) {
+        const auto n = size(nums);
+        long long cur_max = accumulate(cbegin(nums), cend(nums), 0);
+        vector<int> indexes(n);
+        for (int i = 0; i < n; i++) {
+            indexes[i] = i;
+        }
+        sort(begin(indexes), end(indexes), [&](int a, int b) { return ((nums[a] ^ k) - nums[a]) > ((nums[b] ^ k) - nums[b]);  });
+        for (int i = 0; i < n - 1; i += 2) {
+            const auto new_val = (nums[indexes[i]] ^ k) + (nums[indexes[i + 1]] ^ k);
+            const auto old_val = nums[indexes[i]] + nums[indexes[i + 1]];
+            if (new_val <= old_val) {
+                break;
+            }
+            cur_max += new_val - old_val;
+        }
+
+        return cur_max;
     }
 };
 
