@@ -261,13 +261,43 @@ public:
         return count;
     }
 
-
-    int countBalancedPermutations(string num) {
+    static int tle(string&& num) {
         sort(begin(num), end(num));
         vector<char> work1, work2;
         vector<pair<vector<char>, vector<char>>> enums;
-        
+
         return rec_enum(num, 0, work1, work2, 0, 0); 0;
+    }
+
+    vector<vector<long long>> get_comb_modulo(int n, long long modulo) {
+        vector<vector<long long>> comb(n + 1, vector<long long>(n + 1));
+        for (int i = 0; i <= n; i++) {
+            comb[i][i] = comb[i][0] = 1;
+            for (int j = 1; j < i; j++) {
+                comb[i][j] = (comb[i - 1][j] + comb[i - 1][j - 1]) % modulo;
+            }
+        }
+        return comb;
+    }
+
+    static long long rec(const vector<int>& digits, int index, int target_sum, int cur_even_sum) {
+
+    }
+
+    int countBalancedPermutations(string num) {
+        map<char, int> freqs;
+        int digit_sums = 0;
+        for (auto&& c : num) {
+            freqs[c]++;
+            digit_sums += static_cast<int>(c - '0');
+        }
+        if (digit_sums % 2 != 0) {
+            return 0;
+        }
+        const auto n = size(num);
+        vector<map<int, long long>> dp(n);
+
+
     }
 };
 static void test(string&& num) {
