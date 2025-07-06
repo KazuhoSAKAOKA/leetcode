@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{1e2a9ecc-fbfb-4f4e-be99-619cfb46930d}</ProjectGuid>
-    <RootNamespace>weekly_contest_454</RootNamespace>
+    <ProjectGuid>{a5c5d676-efdf-4653-88bb-f755f4b9bb8a}</ProjectGuid>
+    <RootNamespace>leetcode_Q0378</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
