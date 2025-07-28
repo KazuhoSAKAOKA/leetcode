@@ -24,15 +24,30 @@ public:
         total += rec(nums, index + 1, current | nums[index], max_or);
         return total;
     }
-
-
-    int countMaxOrSubsets(vector<int>& nums) {
+    static int past(vector<int>& nums) {
         int max_or = 0;
         for (auto&& num : nums) {
             max_or |= num;
         }
-
         return rec(nums, 0, 0, max_or);
+    }
+
+
+    int countMaxOrSubsets(vector<int>& nums) {
+        const auto n = size(nums);
+        vector<unordered_map<int, int>> dp(n);
+        dp[0][0] = 1;
+        dp[0][nums[0]] = 1;
+        int max_or = nums[0];
+        for (int i = 1; i < n; i++) {
+            auto& cur = dp[i];
+            for (auto&& [v, cnt] : dp[i - 1]) {
+                cur[v] += cnt;
+                cur[v | nums[i]] += cnt;
+            }
+            max_or |= nums[i];
+        }
+        return dp.back()[max_or];
     }
 };
 
