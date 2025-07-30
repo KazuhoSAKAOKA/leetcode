@@ -139,11 +139,17 @@ void output(const std::vector<T>& values) {
 
 template <typename T>
 void output_matrix(const std::vector<std::vector<T>>& matrix) {
-    for (auto&& list : matrix) {
-        for (int i = 0; i < size(list) - 1; i++) {
-            std::cout << list[i] << ",";
+    std::cout << "[";
+    if (!matrix.empty()) {
+        for (auto&& list : matrix) {
+            std::cout << "[";
+            if (!list.empty()) {
+                for (auto&& item : list) {
+                    std::cout << item << ",";
+                }
+            }
+            std::cout << "]";
         }
-        std::cout << list.back() << std::endl;
     }
-    std::cout << std::endl;
+    std::cout << "]" << std::endl;
 }
