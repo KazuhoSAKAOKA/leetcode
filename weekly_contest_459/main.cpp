@@ -297,7 +297,14 @@ static void run() {
 }
 namespace problem4 {
 
-
+static void test_out(const string& msg, vector<int>&& vals) {
+    cout << msg << ":";
+    sort(begin(vals), end(vals));
+    for (auto&& val : vals) {
+        cout << val << ",";
+    }
+    cout << endl;
+}
 
 using Point = pair<int, int>;
 Point vec(const Point& a, const Point& b) {
@@ -592,14 +599,7 @@ static optional<fraction> operator / (const fraction& a, const fraction& b) {
     d.simplification();
     return d;
 }
-static void test_out(const string& msg,vector<int>&& vals) {
-    cout << msg << ":";
-    sort(begin(vals), end(vals));
-    for (auto&& val : vals) {
-        cout << val << ",";
-    }
-    cout << endl;
-}
+
 class Solution {
 public:
     template <typename T>
@@ -625,7 +625,7 @@ public:
                 numerator = p1[1] - p2[1];
                 denominator = p1[0] - p2[0];
             }
-            const auto d = gcd(numerator, denominator);
+            const auto d = gcd(abs(numerator), denominator);
             return fraction{ numerator / d, denominator / d };
             };
 
@@ -709,7 +709,7 @@ public:
 };
 static void test(vector<vector<int>>&& points) {
     cout << Solution().countTrapezoids(points) << endl;
-    cout << ref::Solution().countTrapezoids(points) << endl;
+    //cout << ref::Solution().countTrapezoids(points) << endl;
 }
 static void run() {
     test(get_matrix_int("[[-36,-31],[-87,70],[-62,-38],[-99,63],[66,87],[-78,-63],[52,17],[72,-8],[-72,-63],[-5,80],[-47,70],[70,38],[79,70],[-70,45],[52,63],[-48,85],[92,-63],[52,-63]]"));
