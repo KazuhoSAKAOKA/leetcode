@@ -3,13 +3,15 @@
 
 #include <iostream>
 #include <vector>
-
+#include <functional>
+#include <cmath>
+#include <optional>
 using namespace std;
 
 class Solution {
 public:
 
-    bool binary_search(const vector<int>& nums, int target, int left, int right) {
+    static bool binary_search(const vector<int>& nums, int target, int left, int right) {
         while (left <= right) {
             auto current_index = left + (right - left) / 2;
             if (nums[current_index] == target) {
@@ -27,7 +29,7 @@ public:
 
 
 
-    bool search(vector<int>& nums, int target) {
+    static bool bad(vector<int>& nums, int target) {
         if (nums.empty()) { return false; }
         if (nums.size() == 1) { return nums[0] == target ? true : false; }
         int left = 0;
@@ -77,6 +79,50 @@ public:
         return false;
     }
 
+    template <typename T = long long>
+    static T binary_search_meguru(T ok, T ng, std::function<bool(T)> check) {
+        while (abs(ng - ok) > 1) {
+            const auto mid = (ok + ng) / 2;
+            if (check(mid)) {
+                ok = mid;
+            }
+            else {
+                ng = mid;
+            }
+        }
+        return ok;
+    }
+
+    bool search(vector<int>& nums, int target) {
+        if (nums.empty()) { return false; }
+        if (size(nums) == 1) { return nums[0] == target ? true : false; }
+        const auto f = nums.front();
+        const auto b = nums.back();
+        if (f == target || b == target) { return true; }
+        if (b < target && target < f) { return false; }
+        if (f < target) {
+
+            auto my_binary_search = [&](int left, int right)->bool {
+                while ((right - left) > 1) {
+                    const auto mid = (left + right) / 2;
+                    if (target == nums[mid]) { return true; }
+                    if (target < nums[mid]) {
+                        left = mid;
+                    }
+                    else {
+                        right = mid;
+                    }
+                }
+                return false;
+                };
+
+
+        }
+        else {
+
+        }
+
+    }
 };
 
 
