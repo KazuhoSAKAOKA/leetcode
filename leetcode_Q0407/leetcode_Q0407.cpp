@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <queue>
 #include "./../utility/leetcode_testcase_helper.h"
 
 using namespace std;
@@ -90,22 +91,54 @@ public:
     }
 
     int trapRainWater(vector<vector<int>>& heightMap) {
-        const auto H = size(heightMap);
-        const auto W = size(heightMap.front());
-        vector<vector<int>> water_heights(H, vector<int>(W, -1));
+        const int H = size(heightMap);
+        const int W = size(heightMap.front());
+        vector<vector<int>> water_heights(H, vector<int>(W, INT_MAX));
+
+        auto compare = [&](const pair<int, int>& a, const pair<int, int>& b)->bool {
+            return a.first > b.first;
+            };
+        priority_queue<pair<int, int>, vector<pair<int,int>>, decltype(compare)> q(compare);
 
         for (int i = 0; i < H; i++) {
-            water_heights[i][0] = heightMap[i][0];
-            water_heights[i][W - 1] = heightMap[i][W - 1];
-        }
-        for (int j = 0; j < W; j++) {
-            water_heights[0][j] = heightMap[0][j];
-            water_heights[H - 1][j] = heightMap[H - 1][j];
-        }
-        for (int i = 1; i < H - 1; i++) {
-            for (int j = 1; j < W - 1; j++) {
+            for (int j = 0; j < W; j++) {
+                if (i == 0 || j == 0 || i == H - 1 || j == W - 1) {
+                    water_heights[i][j] = heightMap[i][j];
+                }
+                q.push({ water_heights[i][j], i * W + j });
             }
         }
+
+        const vector<pair<int, int>> dirs{ {-1,0}, {1,0}, {0,-1}, {0,1}, };
+        while (!q.empty()) {
+            const auto [height, current] = q.top();
+            q.pop();
+            const auto y = current / W;
+            const auto x = current % W;
+            if (water_heights[y][x] < height) {
+                continue;
+            }
+            for (auto&& [dy,dx] : dirs) {
+                const auto ny = y + dy;
+                const auto nx = x + dx;
+                if (0 <= ny && ny < H && 0 <= nx && nx < W && heightMap[ny][nx] != water_heights[ny][nx] && height < water_heights[ny][nx]) {
+                    water_heights[ny][nx] = max(height, heightMap[ny][nx]);
+                    q.push({ water_heights[ny][nx], ny * W + nx });
+                }
+            }
+        }
+
+        int total = 0;
+
+        for (int i = 0; i < H; i++) {
+            for (int j = 0; j < W; j++) {
+                if (water_heights[i][j] != INT_MAX) {
+                    const auto vol = max(0, water_heights[i][j] - heightMap[i][j]);
+                    total += vol;
+                }
+            }
+        }
+        return total;
     }
 };
 
@@ -114,8 +147,9 @@ void test(vector<vector<int>>&& heightMap) {
 }
 int main()
 {
+    test(get_matrix_int("[[1,4,3,1,3,2],[3,2,1,3,2,4],[2,3,3,2,3,1]]"));
+    test(get_matrix_int("[[2,3,4],[5,6,7],[8,9,10],[11,12,13],[14,15,16]]"));
     test(get_matrix_int("[[12,13,1,12],[13,4,13,12],[13,8,10,12],[12,13,12,12],[13,13,13,13]]"));
     test(get_matrix_int("[[3,3,3,3,3],[3,2,2,2,3],[3,2,1,2,3],[3,2,2,2,3],[3,3,3,3,3]]"));
-    test(get_matrix_int("[[1,4,3,1,3,2],[3,2,1,3,2,4],[2,3,3,2,3,1]]"));
     return 0;
 }
