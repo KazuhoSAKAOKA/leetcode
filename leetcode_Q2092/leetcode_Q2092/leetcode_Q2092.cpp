@@ -13,6 +13,46 @@ using namespace std;
 class Solution {
 public:
 
+
+    static vector<int> tle(int n, vector<vector<int>>& meetings, int firstPerson) {
+        using PERSON = int;
+        using TIME = int;
+
+        unordered_map<PERSON, vector<pair<TIME, PERSON>>> graph;
+        for (auto&& meeting : meetings) {
+            graph[meeting[0]].emplace_back(make_pair(meeting[2], meeting[1]));
+            graph[meeting[1]].emplace_back(make_pair(meeting[2], meeting[0]));
+        }
+        vector<int> earliest(n, INT_MAX);
+        earliest[0] = 0;
+        earliest[firstPerson] = 0;
+
+        queue<pair<TIME, PERSON>> tpqueue;
+        tpqueue.emplace(make_pair(0, 0));
+        tpqueue.emplace(make_pair(0, firstPerson));
+
+        while (!tpqueue.empty()) {
+            auto [time, person] = tpqueue.front();
+            tpqueue.pop();
+            for (auto&& [t, next] : graph[person]) {
+                if (t >= time && earliest[next] > t) {
+                    earliest[next] = t;
+                    tpqueue.push(make_pair(t, next));
+                }
+            }
+        }
+
+        vector<int> ans;
+        for (int i = 0; i < n; i++) {
+            if (earliest[i] < INT_MAX) {
+                ans.emplace_back(i);
+            }
+        }
+
+        return ans;
+    }
+
+
     struct union_find {
         vector<int> _parent;
         vector<int> _size;
@@ -48,6 +88,11 @@ public:
         bool same(int x, int y) {
             return root(x) == root(y);
         }
+
+        void reset(int x) {
+            _parent[x] = x;
+            _size[x] = 1;
+        }
     };
 
 
@@ -55,37 +100,37 @@ public:
         using PERSON = int;
         using TIME = int;
 
-        unordered_map<PERSON, vector<pair<TIME, PERSON>>> graph;
+        unordered_map<TIME, vector<pair<PERSON, PERSON>>> time_map;
         for (auto&& meeting : meetings) {
-            graph[meeting[0]].emplace_back(make_pair(meeting[2], meeting[1]));
-            graph[meeting[1]].emplace_back(make_pair(meeting[2], meeting[0]));
+            const PERSON x = meeting[0];
+            const PERSON y = meeting[1];
+            const TIME time = meeting[2];
+            time_map[time].emplace_back(make_pair(x, y));
         }
-        vector<int> earliest(n, INT_MAX);
-        earliest[0] = 0;
-        earliest[firstPerson] = 0;
+        union_find uf(n);
+        uf.unite(0, firstPerson);
 
-        queue<pair<TIME, PERSON>> tpqueue;
-        tpqueue.emplace(make_pair(0, 0));
-        tpqueue.emplace(make_pair(0, firstPerson));
-
-        while (!tpqueue.empty()) {
-            auto [time, person] = tpqueue.front();
-            tpqueue.pop();
-            for (auto&& [t, next] : graph[person]) {
-                if (t >= time && earliest[next] > t) {
-                    earliest[next] = t;
-                    tpqueue.push(make_pair(t, next));
+        for (auto&& [_, edges] : time_map) {
+            unordered_set<PERSON> appends;
+            for (auto&& edge : edges) {
+                appends.insert(edge.first);
+                appends.insert(edge.second);
+                uf.unite(edge.first, edge.second);
+            }
+            const auto knowns = uf.root(0);
+            for (auto&& v : appends) {
+                if (uf.root(v) != knowns) {
+                    uf.reset(v);
                 }
             }
         }
 
         vector<int> ans;
         for (int i = 0; i < n; i++) {
-            if (earliest[i] < INT_MAX) {
+            if (uf.same(0, i)) {
                 ans.emplace_back(i);
             }
         }
-
         return ans;
     }
 };
