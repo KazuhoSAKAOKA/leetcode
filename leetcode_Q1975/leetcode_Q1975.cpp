@@ -33,7 +33,7 @@ public:
         return max_sum;
     }
 
-    long long maxMatrixSum(vector<vector<int>>& matrix) {
+    static long long past(vector<vector<int>>& matrix) {
         long long total = 0;
         vector<vector<bool>> operates(size(matrix), vector<bool>(size(matrix.front())));
         vector<pair<pair<int, int>, pair<int, int>>> coodinates;
@@ -52,6 +52,30 @@ public:
 
         return rec(matrix, operates, coodinates, 0, total);
     }
+
+
+    long long maxMatrixSum(vector<vector<int>>& matrix) {
+        long long total = 0;
+        int minus_count = 0;
+        long long min_abs_value = LLONG_MAX;
+        for (auto&& row : matrix) {
+            for (auto&& cell:row) {
+                min_abs_value = min(min_abs_value, static_cast<long long>(abs(cell)));
+                if (cell < 0) {
+                    minus_count++;
+                }
+                total += static_cast<long long>(abs(cell));
+            }
+        }
+
+        if (minus_count % 2 == 0) {
+            return total;
+        }
+        else {
+            return total - 2 * min_abs_value;
+        }
+    }
+
 };
 
 void test(vector < vector<int>>&& matrix) {
