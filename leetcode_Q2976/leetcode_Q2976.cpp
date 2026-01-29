@@ -46,7 +46,7 @@ public:
 		return costs;
 	}
 
-    long long minimumCost(string source, string target, vector<char>& original, vector<char>& changed, vector<int>& cost) {
+    long long minimumCost_past(string source, string target, vector<char>& original, vector<char>& changed, vector<int>& cost) {
 
 		vector<vector<path>> graph(SIZE);
 		for (int i = 0; i < original.size(); i++) {
@@ -67,6 +67,37 @@ public:
         }
         return total;
     }
+
+	long long minimumCost(string source, string target, vector<char>& original, vector<char>& changed, vector<int>& cost) {
+		constexpr long long INFINITE = LLONG_MAX;
+		vector<vector<long long>> dist(26, vector<long long>(26, INFINITE));
+		for (int i = 0; i < original.size(); i++) {
+			const auto u = original[i] - 'a';
+			const auto v = changed[i] - 'a';
+			dist[u][v] = min(dist[u][v], static_cast<long long>(cost[i]));
+		}
+		for (int i = 0; i < 26; i++) {
+			dist[i][i] = 0LL;
+		}
+		for (int k = 0; k < 26; k++) {
+			for (int i = 0; i < 26; i++) {
+				for (int j = 0; j < 26; j++) {
+					if (dist[i][k] != INFINITE && dist[k][j] != INFINITE) {
+						dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+					}
+				}
+			}
+		}
+
+		long long total = 0;
+		for (size_t i = 0; i < source.size(); i++) {
+			const auto cost = dist[source[i] - 'a'][target[i] - 'a'];
+			if (cost == INFINITE) { return -1; }
+			total += cost;
+		}
+		return total;
+	}
+
 };
 
 void test(string&& source, string&& target, vector<char>&& original, vector<char>&& changed, vector<int>&& cost) {
