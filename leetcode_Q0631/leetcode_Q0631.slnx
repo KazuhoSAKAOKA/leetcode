@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="leetcode_Q0631.vcxproj" Id="2b3f7eb7-ff4e-4644-9c7b-b434b1d62915" />
+</Solution>
