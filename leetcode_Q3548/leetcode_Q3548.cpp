@@ -26,8 +26,8 @@ public:
         const auto rows = size(grid);
         const auto cols = size(grid.front());
         vector<vector<long long>> prefix_sums(rows + 1, vector<long long>(cols + 1, 0LL));
-        unordered_map<int, set<int>> y_value_map;
-        unordered_map<int, set<int>> x_value_map;
+        unordered_map<long long, set<int>> y_value_map;
+        unordered_map<long long, set<int>> x_value_map;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 y_value_map[grid[i][j]].insert(i);
