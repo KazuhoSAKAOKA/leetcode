@@ -191,27 +191,72 @@ public:
 
 	using fenwick_tree = binary_indexed_tree<long long>;
 
+
+
+	template <typename T>
+	struct segment_tree_max {
+		T inf_;
+		vector<T> data_;
+		size_t n_;
+
+		segment_tree_max(size_t n)
+			: inf_(numeric_limits<T>::min()){
+			n_ = 1;
+			while (n_ < n) {
+				n_ <<= 1;
+			}
+			data_.assign(2 * n_, inf_);
+		}
+
+		void update(size_t index, T value) {
+			size_t i = index + n_;
+			if (value < data_[i]) { return; }
+			data_[i] = value;
+			while (i > 1) {
+				i >>= 1;
+				data_[i] = max(data_[i << 1], data_[(i << 1) | 1]);
+			}
+		}
+
+		T query(size_t a, size_t b) {
+			return query(a, b, 1, 0, n_);
+		}
+
+		T query(size_t a, size_t b, size_t index, size_t l, size_t r) {
+			if (r <= a || b <= l) {
+				return inf_;
+			}
+			if (a <= l && r <= b) {
+				return data_[index];
+			}
+			size_t mid = (l + r) >> 1;
+			T vl = query(a, b, index << 1, l, mid);
+			T vr = query(a, b, (index << 1) | 1, mid, r);
+			return max(vl, vr);
+		}
+	};
+
 	long long maxAlternatingSum(vector<int>& nums, int k) {
 		const int n = size(nums);
 		if (n == 1) { return nums[0]; }
 		const auto max_val = *max_element(cbegin(nums), cend(nums));
+		// dp[index][is_peak]
 		vector<vector<long long>> dp(n, vector<long long>(2));
-		fenwick_tree st0(max_val + 1);
-		fenwick_tree st1(max_val + 1);
+		using seg_tree = segment_tree_max<long long>;
+		seg_tree st_peak(max_val + 1);
+		seg_tree st_valley(max_val + 1);
+
 		long long ans = 0;
 		for (int i = 0; i < n; i++) {
-			if (i - k >= 0) {
-				const auto target = i - k;
-				const long long base_val = static_cast<long long>(nums[target]);
-				st0.update(nums[target], max(dp[target][0], base_val));
-				st1.update(max_val + 1 - nums[i], max(dp[target][1], base_val));
-			}
 
-			
-			const auto best_low = st0.query(nums[i] - 1);
-			const auto best_high = st1.query(max_val + 1 - nums[i]);
-			dp[i][0] = max(best_high + static_cast<long long>(nums[i]), static_cast<long long>(nums[i]));
-			dp[i][1] = max(best_low + static_cast<long long>(nums[i]), static_cast<long long>(nums[i]));
+			if (i - k >= 0) {
+				st_peak.update(nums[i - k], dp[i - k][1]);
+				st_valley.update(nums[i - k], dp[i - k][0]);
+			}
+			const auto best_peak = max(0LL, st_peak.query(nums[i] + 1, max_val + 1));
+			const auto best_valley = max(0LL, st_valley.query(0, nums[i]));
+			dp[i][0] = max(best_peak + static_cast<long long>(nums[i]), static_cast<long long>(nums[i]));
+			dp[i][1] = max(best_valley + static_cast<long long>(nums[i]), static_cast<long long>(nums[i]));
 
 
 			ans = max(ans, max(dp[i][0], dp[i][1]));
@@ -226,7 +271,7 @@ static void test(vector<int>&& nums, int k) {
 static void run() {
 	test(get_list_int("[5,4,2]"), 2);
 	test(get_list_int("[3,5,4,2,4]"), 1);
-	//test(get_list_int("[5]"), 1);
+	test(get_list_int("[5]"), 1);
 }
 }
 
