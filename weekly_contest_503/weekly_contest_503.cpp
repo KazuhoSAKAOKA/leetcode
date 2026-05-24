@@ -266,86 +266,84 @@ public:
 
 
 	vector<int> numberOfPairs(vector<int>& nums1, vector<int>& nums2, vector<vector<int>>& queries) {
-		auto tempdata(nums2);
-		tle(nums1, tempdata, queries);
-		vector<vector<int>> check_nums;
-
-
 		const int n2 = size(nums2);
 		const int sqlen = static_cast<int>(ceil(sqrt(static_cast<double>(n2))));
 		const int nsq = (n2 + sqlen - 1) / sqlen;
 		vector<int> ans;
-		vector<int> sqs(nsq, 0);
-		unordered_map<int, int> nums1_map;
-		vector<int> diffs(n2 + 1, 0);
+		vector<long long> sq_current(nsq);
+		vector<unordered_map<long long, int>> sqs(nsq);
+		unordered_map<long long, int> nums1_map;
+		vector<long long> nums(n2);
 		for (auto&& num : nums1) { nums1_map[num]++; }
+		for (int i = 0; i < n2; i++) {
+			const auto nsi = i / sqlen;
+			sqs[nsi][nums2[i]]++;
+			nums[i] = nums2[i];
+		}
+
+		auto myincmap = [](unordered_map<long long, int>& mp, long long& num, long long val) {
+			mp[num]--;
+			num += val;
+			mp[num]++;
+			};
 
 		for (auto&& query : queries) {
 			if (query.front() == 1) {
 				const auto left = query[1];
 				const auto right = query[2];
+				const auto right_end = right + 1;
 				const auto val = query[3];
+				if (left / sqlen == right_end / sqlen && (left % sqlen != 0 || right_end % sqlen != 0)) {
 
-				const auto left_sq_index = (left % sqlen == 0) ? left / sqlen : left / sqlen + 1;
-				const auto right_sq_index = (right % sqlen == 0) ? right / sqlen : right / sqlen - 1;
-				if (left_sq_index >= right_sq_index) {
-					diffs[left] += val;
-					diffs[right + 1] -= val;
+					auto& mp = sqs[left / sqlen];
+					for (int i = left; i <= right; i++) {
+						myincmap(mp, nums[i], val);
+					}
+
 				}
 				else {
+					const auto left_sq_index = (left % sqlen == 0) ? left / sqlen : left / sqlen + 1;
+					const auto right_sq_index = (right_end % sqlen == 0) ? right_end / sqlen - 1: right_end / sqlen - 1;
 					if (left % sqlen != 0) {
-						diffs[left] += val;
-						diffs[left_sq_index * nsq] -= val;
+						const auto left_index = left / sqlen;
+						auto& mp = sqs[left_index];
+						for (int i = left; i < (left_index + 1) * sqlen; i++) {
+							myincmap(mp, nums[i], val);
+						}
 					}
 					for (int i = left_sq_index; i <= right_sq_index; i++) {
-						sqs[i] += val;
+						sq_current[i] += val;
 					}
-					if (right % sqlen != 0) {
-						diffs[(right_sq_index + 1) * nsq] += val;
-						diffs[right + 1] -= val;
+					if (right_end % sqlen != 0) {
+						const auto right_index = right / sqlen;
+						auto& mp = sqs[right_index];
+						for (int i = right_index * sqlen; i <= right; i++) {
+							myincmap(mp, nums[i], val);
+						}
 					}
 				}
-
-
-				int cur_diff = 0;
-				vector<int> tempnums;
-				for (int i = 0; i < n2; i++) {
-					cur_diff += diffs[i];
-					const auto cur_num = nums2[i] + cur_diff + sqs[i / sqlen];
-					tempnums.push_back(cur_num);
-				}
-				check_nums.emplace_back(move(tempnums));
-
 
 			}
 			else {
 				const auto total = query[1];
 				int cur_count = 0;
-				int cur_diff = 0;
-				for (int i = 0; i < n2; i++) {
-					cur_diff += diffs[i];
-					const auto cur_num = nums2[i] + cur_diff + sqs[i / sqlen];
-					auto remain = total - cur_num;
-					if (remain > 0) {
-						auto it = nums1_map.find(remain);
-						if (it != cend(nums1_map)) {
-							cur_count += it->second;
+				for (auto&& [val, count] : nums1_map) {
+					for (int block = 0; block < nsq; block++) {
+						const auto cur_block_base = sq_current[block];
+						const auto real_num = val + cur_block_base;
+						auto remain = total - real_num;
+						const auto& mp = sqs[block];
+						if (remain > 0) {
+							auto it = mp.find(remain);
+							if (it != cend(mp)) {
+								cur_count += count * it->second;
+							}
 						}
 					}
 				}
 				ans.push_back(cur_count);
 			}
 		}
-
-
-		for (int i = 0; i < size(check_nums); i++) {
-			if (check_nums[i] != check_nums_collect[i]) {
-				cout << "invalid index" << i << endl;
-				output(check_nums[i]);
-				output(check_nums_collect[i]);
-			}
-		}
-
 
 		return ans;
 	}
@@ -354,11 +352,14 @@ static void test(vector<int>&& nums1, vector<int>&& nums2, vector<vector<int>>&&
 	output(Solution().numberOfPairs(nums1, nums2, queries));
 }
 static void run() {
+	test(get_list_int("[36,1,24,3]"), get_list_int("[2,17,23,24,17,29,50,33,24,48,20,40,12,15,3,19,36,25,40,7,16,34,2,48,1]"), 
+		get_matrix_int("[[2,55],[2,35],[2,20],[2,24],[1,11,20,9],[2,83],[1,22,22,22],[1,5,20,95],[2,181]]"));
+
 	test(get_list_int("[35,10,65,92,30]"), get_list_int("[1,18,46,69,64,14,45,33,5,27,81,18,6,81,58,30,83,22,3,3,30,2,93,48,13,53,85,68,87,82,60,7,9,48,88,42,15,57,71,22,91,14,47,3,10,72,41]"), get_matrix_int("[[2,87],[1,13,14,99],[2,98],[2,71],[2,121],[2,112],[2,67],[1,17,17,62],[2,93],[2,80],[2,46],[1,11,33,16],[1,30,40,8],[1,3,36,62],[2,180],[2,77],[2,135],[2,42],[1,15,45,94],[2,161],[2,359],[2,191]]"));
-	//test(get_list_int("[49,10]"), get_list_int("[1,10,30,9,32,7,42,1,36,12,11,32,51,47,29,12,23,50,41,5,1,18,50,23,10,32,53]"), get_matrix_int("[[1,11,24,30],[2,35],[1,1,21,31],[2,93],[2,102]]"));
-	//test(get_list_int("[1,2]"), get_list_int("[3,4]"), get_matrix_int("[[2,5],[1,0,0,2],[2,5]]"));
-	//test(get_list_int("[1,1]"), get_list_int("[2,2,3]"), get_matrix_int("[[2,4],[1,0,1,1],[2,4]]"));
-	//test(get_list_int("[2,5,8,4]"), get_list_int("[1,3,8]"), get_matrix_int("[[2,9],[1,1,2,1],[2,10]]"));
+	test(get_list_int("[49,10]"), get_list_int("[1,10,30,9,32,7,42,1,36,12,11,32,51,47,29,12,23,50,41,5,1,18,50,23,10,32,53]"), get_matrix_int("[[1,11,24,30],[2,35],[1,1,21,31],[2,93],[2,102]]"));
+	test(get_list_int("[1,2]"), get_list_int("[3,4]"), get_matrix_int("[[2,5],[1,0,0,2],[2,5]]"));
+	test(get_list_int("[1,1]"), get_list_int("[2,2,3]"), get_matrix_int("[[2,4],[1,0,1,1],[2,4]]"));
+	test(get_list_int("[2,5,8,4]"), get_list_int("[1,3,8]"), get_matrix_int("[[2,9],[1,1,2,1],[2,10]]"));
 }
 }
 
