@@ -5,6 +5,8 @@
 #include <functional>
 #include <optional>
 #include <iostream>
+#include <filesystem>
+#include <fstream>
 
 template <typename T, typename F> 
 std::vector<T> get_list(const std::string& data, F convert) {
@@ -82,6 +84,10 @@ std::vector<long long> get_list_ll(const std::string& data) {
     return get_list<long long>(data, [](const std::string& value) { return std::stoll(value); });
 }
 
+std::vector<bool> get_list_bool(const std::string& data) {
+    return get_list<bool>(data, [](const std::string& value) { return value == "true"; });
+}
+
 std::vector<std::vector<long long>> get_matrix_ll(const std::string& data) {
     return get_matrix<long long>(data, [](const std::string& value) { return std::stoll(value); });
 }
@@ -152,4 +158,21 @@ void output_matrix(const std::vector<std::vector<T>>& matrix) {
         }
     }
     std::cout << "]" << std::endl;
+}
+
+static std::string get_text_from_file(const std::filesystem::path& p) {
+    std::ifstream f(p);
+    if (!f) {
+        throw std::runtime_error("failed to open file: " + p.string());
+    }
+
+    std::string s;
+    f.seekg(0, std::ios::end);
+    s.reserve(f.tellg());
+    f.seekg(0, std::ios::beg);
+
+    s.assign(std::istreambuf_iterator<char>(f),
+        std::istreambuf_iterator<char>());
+
+    return s;
 }
